@@ -1,0 +1,240 @@
+@import "tailwindcss";
+
+/* Tu Shopper USA — tokens del sistema de diseño.
+   Paleta: marino, dorado, marfil. Tipografía: DM Serif Display + DM Sans.
+   Las categorías se distinguen con iconos y rótulos, nunca con colores nuevos. */
+
+@theme {
+  /* Diseño "de escritorio hacia abajo": ≤760 móvil, ≤1180 tableta.
+     En Tailwind (móvil primero): base = móvil, md ≥ 761 px, lg ≥ 1181 px. */
+  --breakpoint-*: initial;
+  --breakpoint-md: 47.5625rem;
+  --breakpoint-lg: 73.8125rem;
+  /* Menú de escritorio completo: necesita ~1080 px. */
+  --breakpoint-nav: 67.5rem;
+
+  --color-*: initial;
+  --color-transparent: transparent;
+  --color-current: currentColor;
+  --color-white: #ffffff;
+  --color-navy: #0b1431;
+  --color-navy-2: #141f45;
+  --color-navy-line: #2a3560;
+  --color-gold: #c5a253;
+  --color-gold-hover: #d3b46a;
+  --color-gold-ink: #7a5c1e;
+  --color-gold-soft: #e9ddbf;
+  --color-ivory: #fbfaf6;
+  --color-mist: #eef1f6;
+  --color-tile: #f3f0ea;
+  --color-ink: #0b1431;
+  --color-muted: #4a5270;
+  --color-line: #e2ded3;
+  --color-line-2: #cfcab9;
+  --color-ok: #2f5d46;
+  --color-off: #8a3b2e;
+  --color-disabled: #e7e5df;
+  --color-disabled-ink: #6b6f80;
+  --color-faint: #9a9daa;
+  /* Texto sobre marino */
+  --color-on-navy: #c9cedd;
+  --color-on-navy-soft: #b9bfd2;
+  --color-on-navy-link: #d7dbe7;
+  --color-on-navy-faint: #9ea5bd;
+  --color-on-navy-mute: #dde1ec;
+
+  --radius-xs: 1px;
+  --radius-sm: 2px;
+
+  --shadow-fab: 0 10px 30px rgb(11 20 49 / 0.25);
+
+  --ease-out-soft: cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+
+@theme inline {
+  --font-sans: var(--font-dm-sans), system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-serif: var(--font-dm-serif), Georgia, serif;
+}
+
+/* ---------- Base ---------- */
+@layer base {
+  html {
+    scroll-behavior: smooth;
+    -webkit-text-size-adjust: 100%;
+  }
+  body {
+    margin: 0;
+    background: var(--color-ivory);
+    color: var(--color-ink);
+    font-family: var(--font-sans);
+    font-size: 15px;
+    line-height: 1.55;
+    -webkit-font-smoothing: antialiased;
+  }
+  @media (min-width: 761px) {
+    body {
+      font-size: 16px;
+    }
+  }
+  a {
+    color: inherit;
+  }
+  img {
+    display: block;
+    max-width: 100%;
+  }
+  :focus-visible {
+    outline: 2px solid var(--color-gold);
+    outline-offset: 3px;
+  }
+  button:not(:disabled),
+  [role="button"]:not(:disabled) {
+    cursor: pointer;
+  }
+  [id] {
+    scroll-margin-top: 160px;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    html {
+      scroll-behavior: auto;
+    }
+    *,
+    *::before,
+    *::after {
+      transition-duration: 0.01ms !important;
+    }
+  }
+}
+
+/* ---------- Tipografía (nombres "type-*" para no chocar con text-* de color) ---------- */
+@utility type-display {
+  font-family: var(--font-serif);
+  font-weight: 400;
+  font-size: 40px;
+  line-height: 1.08;
+  letter-spacing: -0.01em;
+  margin: 0;
+  @media (min-width: 761px) {
+    font-size: 64px;
+    line-height: 1.04;
+  }
+}
+@utility type-h1 {
+  font-family: var(--font-serif);
+  font-weight: 400;
+  font-size: 40px;
+  line-height: 1.08;
+  letter-spacing: -0.01em;
+  margin: 0;
+  @media (min-width: 761px) {
+    font-size: 52px;
+    line-height: 1.06;
+  }
+}
+@utility type-h2 {
+  font-family: var(--font-serif);
+  font-weight: 400;
+  font-size: 30px;
+  line-height: 1.1;
+  margin: 0;
+  @media (min-width: 761px) {
+    font-size: 42px;
+  }
+}
+@utility type-h3 {
+  font-family: var(--font-serif);
+  font-weight: 400;
+  font-size: 22px;
+  line-height: 1.2;
+  margin: 0;
+  @media (min-width: 761px) {
+    font-size: 26px;
+  }
+}
+@utility type-serif {
+  font-family: var(--font-serif);
+  font-weight: 400;
+  letter-spacing: -0.005em;
+}
+@utility type-lead {
+  font-size: 16px;
+  line-height: 1.6;
+  margin: 0;
+  @media (min-width: 761px) {
+    font-size: 18px;
+  }
+}
+@utility type-eyebrow {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  margin: 0;
+}
+@utility type-small {
+  font-size: 13px;
+}
+@utility type-label {
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+/* ---------- Layout ---------- */
+@utility wrap {
+  max-width: 1328px;
+  margin-inline: auto;
+  padding-inline: 20px;
+  @media (min-width: 761px) {
+    padding-inline: 40px;
+  }
+  @media (min-width: 1181px) {
+    padding-inline: 56px;
+  }
+}
+@utility sec {
+  padding-block: 64px;
+  @media (min-width: 761px) {
+    padding-block: 96px;
+  }
+}
+@utility sec-sm {
+  padding-block: 44px;
+  @media (min-width: 761px) {
+    padding-block: 64px;
+  }
+}
+
+/* ---------- Animaciones ---------- */
+@keyframes marquee {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+@keyframes skeleton {
+  from {
+    background-position: 200% 0;
+  }
+  to {
+    background-position: -200% 0;
+  }
+}
+@utility animate-marquee {
+  animation: marquee 60s linear infinite;
+  @media (prefers-reduced-motion: reduce) {
+    animation: none;
+  }
+}
+@utility skeleton {
+  background: linear-gradient(90deg, #ece8de 0%, #f5f2ea 50%, #ece8de 100%);
+  background-size: 200% 100%;
+  animation: skeleton 1.4s ease infinite;
+  border-radius: 1px;
+  @media (prefers-reduced-motion: reduce) {
+    animation: none;
+  }
+}

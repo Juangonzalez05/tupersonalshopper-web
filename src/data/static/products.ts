@@ -1,0 +1,815 @@
+import {
+  UNKNOWN_BRAND,
+  type CategoryKey,
+  type PoloInfo,
+  type Product,
+  type ProductImage,
+  type ProductTag,
+  type VariantGroup,
+} from "@/domain/product";
+import generatedImages from "./product-images.generated.json";
+
+/**
+ * Catálogo actual (69 productos). Fuente: carpeta "FOTOS FONDO BLANCO" y el diseño del sitio.
+ * Nombres, tallas y colores salen de los archivos y de las capturas; lo que falta confirmar está
+ * en docs/PENDIENTES.md. El orden de este arreglo es el orden "Recomendados".
+ *
+ * Las fotos se generan con `npm run photos` (ver scripts/photos.manifest.ts) y se asocian por slug.
+ */
+
+interface Seed {
+  id: string;
+  slug: string;
+  name: string;
+  brand: string;
+  category: CategoryKey;
+  subcategory: string;
+  price?: number;
+  tag?: ProductTag;
+  variants?: VariantGroup[];
+  description?: string;
+  availabilityNote?: string;
+  polo?: PoloInfo;
+}
+
+// ---------- Ayudas para declarar variantes ----------
+
+const select = (name: string, values: string[], note?: string): VariantGroup => ({
+  name,
+  display: "select",
+  options: values.map((value) => ({ value })),
+  ...(note ? { note } : {}),
+});
+
+const sizes = (values: string[], soldOut: string[] = []): VariantGroup => ({
+  name: "Talla",
+  display: "chips",
+  options: values.map((value) => (soldOut.includes(value) ? { value, soldOut: true } : { value })),
+  ...(soldOut.length
+    ? {
+        note: `Al consultar la tienda, ${soldOut.join(" y ")} aparecía${soldOut.length > 1 ? "n" : ""} agotada${soldOut.length > 1 ? "s" : ""}.`,
+      }
+    : {}),
+});
+
+/** Color con un solo nombre confirmado (el seleccionado en la captura de la tienda). */
+const namedColor = (named: string, total: number): VariantGroup =>
+  total > 1
+    ? {
+        name: "Color",
+        display: "chips",
+        options: [{ value: named }, { value: "Otro color" }],
+        note: `${total} colores en la tienda de origen. Solo “${named}” tiene nombre confirmado; si quieres otro, cuéntanos cuál en comentarios.`,
+      }
+    : { name: "Color", display: "chips", options: [{ value: named }] };
+
+const swatches = (named: string, hexes: string[], note: string): VariantGroup => ({
+  name: "Color",
+  display: "swatches",
+  options: hexes.map((swatch, index) => ({
+    value: index === 0 ? named : `Color ${index + 1} · nombre por confirmar`,
+    swatch,
+  })),
+  note,
+});
+
+const designs = (count: number): VariantGroup => ({
+  name: "Diseño",
+  display: "chips",
+  options: Array.from({ length: count }, (_, index) => ({ value: `Diseño ${index + 1}` })),
+  note: "Cada diseño corresponde a una foto del pack.",
+});
+
+const ADULT = ["XS", "S", "M", "L", "XL", "XXL"];
+const JUNIOR = ["S", "M", "L", "XL"];
+const VS_SIZES = select(
+  "Talla",
+  ["XS", "S", "M", "L", "XL"],
+  "Tallas de referencia: te confirmamos disponibilidad al cotizar.",
+);
+const ML30 = select("Presentación", ["30 ml"]);
+
+const CAP_HEX = [
+  "#1A1B1F",
+  "#BFA57E",
+  "#5A3E2B",
+  "#2A2A2E",
+  "#8E9096",
+  "#F4F1EA",
+  "#1E2A4A",
+  "#24346B",
+  "#2F4FA0",
+  "#3D7BD0",
+  "#7FC6E8",
+  "#C9DDF0",
+  "#7C9BA3",
+  "#1F3B2D",
+  "#1E6B4A",
+  "#2EA36F",
+  "#D9CFA6",
+  "#E7C443",
+  "#E68A2E",
+  "#6E1F2C",
+  "#B3263A",
+  "#C45A6A",
+  "#F2C6CF",
+  "#9B8FB8",
+  "#5B4E8C",
+];
+
+const PRL = "Polo Ralph Lauren";
+const VS = "Victoria's Secret";
+const hombre = (colorFamily: string): PoloInfo => ({ line: "hombre", colorFamily });
+const ninos = (colorFamily: string): PoloInfo => ({ line: "ninos", colorFamily });
+
+const seeds: Seed[] = [
+  {
+    id: "f04",
+    slug: "serum-pdrn-pink-peptide-medicube",
+    name: "Sérum PDRN Pink Peptide",
+    brand: "Medicube",
+    category: "face",
+    subcategory: "Sérums",
+    tag: "tendencia",
+    variants: [ML30],
+  },
+  {
+    id: "m1",
+    slug: "camiseta-polo-pique-polo-ralph-lauren",
+    name: "Camiseta polo piqué",
+    brand: PRL,
+    category: "fashion",
+    subcategory: "Polo hombre",
+    tag: "tendencia",
+    variants: [
+      sizes(ADULT, ["XS"]),
+      swatches(
+        "Refined Navy",
+        ["#1E2A4A", "#8E95A3", "#1A1B1F", "#4C5D80", "#B7A5D4", "#E6DDC6", "#6A6B3C", "#AFC2E3"],
+        "8 colores en la tienda de origen. Solo “Refined Navy” tiene nombre confirmado.",
+      ),
+    ],
+    description:
+      "Camiseta tipo polo en tejido piqué, manga corta, cuello clásico y tapeta con botones. Composición, horma y guía de tallas te las confirmamos al cotizar, directamente desde la ficha de la tienda.",
+    polo: hombre("Azul marino"),
+  },
+  {
+    id: "p01",
+    slug: "crema-corporal-shea-better-24h-eos",
+    name: "Crema corporal Shea Better 24H Moisture",
+    brand: "eos",
+    category: "body",
+    subcategory: "Cremas corporales",
+    tag: "tendencia",
+    variants: [
+      select("Aroma", [
+        "Vanilla Cashmere",
+        "Coconut Waters",
+        "Beach Waves",
+        "Pink Champagne",
+        "Sensitive · sin fragancia",
+      ]),
+    ],
+  },
+  {
+    id: "g1",
+    slug: "gorra-polo-clasica-polo-ralph-lauren",
+    name: "Gorra Polo clásica",
+    brand: PRL,
+    category: "fashion",
+    subcategory: "Gorras",
+    price: 250_000,
+    tag: "nuevo",
+    variants: [
+      swatches(
+        "Polo Black",
+        CAP_HEX,
+        "25 colores en la tienda de origen. Solo “Polo Black” tiene nombre confirmado; los demás te los confirmamos por WhatsApp.",
+      ),
+    ],
+    description:
+      "El modelo clásico de visera curva con logo bordado. En la tienda de origen aparece en 25 colores; elige el tuyo y te confirmamos disponibilidad.",
+    availabilityNote: "Fotos de referencia: el catálogo no trae foto de producto de la gorra.",
+    polo: { line: "gorras", colorFamily: "Beige y gris" },
+  },
+  {
+    id: "b01",
+    slug: "set-lip-amplifier-juicy-couture",
+    name: "Set Lip Amplifier x5 aceites labiales",
+    brand: "Juicy Couture",
+    category: "beauty",
+    subcategory: "Labios",
+    tag: "tendencia",
+  },
+  {
+    id: "s03",
+    slug: "undeniable-beauty-gomitas-olly",
+    name: "Undeniable Beauty, gomitas",
+    brand: "Olly",
+    category: "health",
+    subcategory: "Vitaminas y suplementos",
+    tag: "tendencia",
+  },
+  {
+    id: "v1",
+    slug: "pack-x5-panties-linea-logo-victorias-secret",
+    name: "Pack x5 panties, línea logo",
+    brand: VS,
+    category: "fashion",
+    subcategory: "Ropa interior",
+    price: 155_000,
+    tag: "tendencia",
+    variants: [VS_SIZES, designs(4)],
+  },
+  {
+    id: "f01",
+    slug: "gel-contorno-de-ojos-kojic-acid-turmeric-medicube",
+    name: "Gel contorno de ojos Kojic Acid Turmeric",
+    brand: "Medicube",
+    category: "face",
+    subcategory: "Contorno de ojos",
+    tag: "nuevo",
+    variants: [ML30],
+  },
+  {
+    id: "b03",
+    slug: "set-4-gloss-labiales-juliette-and-co",
+    name: "Set de 4 gloss labiales",
+    brand: "Juliette & Co.",
+    category: "beauty",
+    subcategory: "Labios",
+    tag: "tendencia",
+  },
+  {
+    id: "p05",
+    slug: "aceite-en-gel-sunlit-glow-vaseline",
+    name: "Aceite en gel Sunlit Glow",
+    brand: "Vaseline",
+    category: "body",
+    subcategory: "Cremas corporales",
+    tag: "nuevo",
+    variants: [select("Aroma", ["Vanilla Cocoa · 50 ml"])],
+  },
+  {
+    id: "m9",
+    slug: "camiseta-polo-la-polo-ralph-lauren",
+    name: "Camiseta polo LA",
+    brand: PRL,
+    category: "fashion",
+    subcategory: "Polo hombre",
+    tag: "nuevo",
+    variants: [sizes(["XXS", ...ADULT], ["XXS", "XS"]), namedColor("Deckwash White", 2)],
+    polo: hombre("Blanco y crema"),
+  },
+  {
+    id: "s07",
+    slug: "kit-rise-and-rest-olly",
+    name: "Kit Rise & Rest",
+    brand: "Olly",
+    category: "health",
+    subcategory: "Vitaminas y suplementos",
+    tag: "nuevo",
+  },
+  {
+    id: "f03",
+    slug: "crema-pdrn-pink-collagen-capsule-medicube",
+    name: "Crema PDRN Pink Collagen Capsule",
+    brand: "Medicube",
+    category: "face",
+    subcategory: "Cremas",
+    tag: "tendencia",
+  },
+  {
+    id: "f02",
+    slug: "crema-contorno-de-ojos-pdrn-pink-peptide-medicube",
+    name: "Crema contorno de ojos PDRN Pink Peptide",
+    brand: "Medicube",
+    category: "face",
+    subcategory: "Contorno de ojos",
+    tag: "nuevo",
+    variants: [ML30],
+  },
+  {
+    id: "b02",
+    slug: "gloss-labial-kiko-milano",
+    name: "Gloss labial",
+    brand: "Kiko Milano",
+    category: "beauty",
+    subcategory: "Labios",
+  },
+  {
+    id: "b04",
+    slug: "bolso-con-set-de-brochas",
+    name: "Bolso con set de brochas",
+    brand: UNKNOWN_BRAND,
+    category: "beauty",
+    subcategory: "Kits y cosmetiqueras",
+  },
+  {
+    id: "b05",
+    slug: "kit-de-maquillaje-in-the-bag",
+    name: "Kit de maquillaje In the Bag",
+    brand: UNKNOWN_BRAND,
+    category: "beauty",
+    subcategory: "Kits y cosmetiqueras",
+  },
+  {
+    id: "b06",
+    slug: "cosmetiquera-guess",
+    name: "Cosmetiquera",
+    brand: "Guess",
+    category: "beauty",
+    subcategory: "Kits y cosmetiqueras",
+  },
+  {
+    id: "b07",
+    slug: "perfume-golden-caramel",
+    name: "Perfume Golden Caramel",
+    brand: UNKNOWN_BRAND,
+    category: "beauty",
+    subcategory: "Fragancias",
+  },
+  {
+    id: "b08",
+    slug: "perfume-one-billionaire-for-men",
+    name: "Perfume One Billionaire for Men",
+    brand: UNKNOWN_BRAND,
+    category: "beauty",
+    subcategory: "Fragancias",
+  },
+  {
+    id: "b09",
+    slug: "perfume-vintage-heroes-red",
+    name: "Perfume Vintage Heroes Red",
+    brand: UNKNOWN_BRAND,
+    category: "beauty",
+    subcategory: "Fragancias",
+  },
+  {
+    id: "b10",
+    slug: "perfume-vintage-heroes",
+    name: "Perfume Vintage Heroes",
+    brand: UNKNOWN_BRAND,
+    category: "beauty",
+    subcategory: "Fragancias",
+  },
+  {
+    id: "p02",
+    slug: "gel-de-bano-shea-better-cashmere-eos",
+    name: "Gel de baño Shea Better Cashmere",
+    brand: "eos",
+    category: "body",
+    subcategory: "Jabones",
+    variants: [select("Aroma", ["Vanilla Cashmere", "Pink Champagne"])],
+  },
+  {
+    id: "p03",
+    slug: "balsamo-labial-daily-care-spf-15-carmex",
+    name: "Bálsamo labial Daily Care SPF 15",
+    brand: "Carmex",
+    category: "body",
+    subcategory: "Cuidado de labios",
+    variants: [
+      select("Presentación", [
+        "Cereza · barra",
+        "Cereza · tubo",
+        "Fresa · barra",
+        "Fresa · tubo",
+        "Wintergreen · barra",
+        "Pack x3 surtido",
+      ]),
+    ],
+  },
+  {
+    id: "p04",
+    slug: "crema-corporal-intensive-care-vaseline",
+    name: "Crema corporal Intensive Care",
+    brand: "Vaseline",
+    category: "body",
+    subcategory: "Cremas corporales",
+    variants: [select("Variante", ["Aloe Soothe", "Cocoa Glow", "Men Fast Absorbing"])],
+  },
+  {
+    id: "p06",
+    slug: "barra-antirozaduras-thigh-glide-happy-curves",
+    name: "Barra antirozaduras Thigh Glide",
+    brand: "Happy Curves",
+    category: "body",
+    subcategory: "Cuidado corporal",
+  },
+  {
+    id: "p07",
+    slug: "desodorante-en-spray-para-hombre-guess",
+    name: "Desodorante en spray para hombre",
+    brand: "Guess",
+    category: "body",
+    subcategory: "Desodorantes",
+  },
+  {
+    id: "p08",
+    slug: "spray-bucal-scope-crest",
+    name: "Spray bucal Scope",
+    brand: "Crest",
+    category: "body",
+    subcategory: "Cuidado oral",
+  },
+  {
+    id: "p09",
+    slug: "spray-bucal-pro-health-pack-x3-crest",
+    name: "Spray bucal Pro-Health, pack x3",
+    brand: "Crest",
+    category: "body",
+    subcategory: "Cuidado oral",
+  },
+  {
+    id: "p10",
+    slug: "palillos-dentales-coolmint-x300-ice-breakers",
+    name: "Palillos dentales Coolmint x300",
+    brand: "Ice Breakers",
+    category: "body",
+    subcategory: "Cuidado oral",
+  },
+  {
+    id: "p11",
+    slug: "gel-antibacterial-japanese-cherry-blossom-bath-and-body-works",
+    name: "Gel antibacterial Japanese Cherry Blossom",
+    brand: "Bath & Body Works",
+    category: "body",
+    subcategory: "Antibacteriales",
+  },
+  {
+    id: "p12",
+    slug: "set-antibacterial-sweet-treats-serendipity-3",
+    name: "Set antibacterial Sweet Treats",
+    brand: "Serendipity 3",
+    category: "body",
+    subcategory: "Antibacteriales",
+  },
+  {
+    id: "p13",
+    slug: "crema-corporal-ck-one-calvin-klein",
+    name: "Crema corporal CK One",
+    brand: "Calvin Klein",
+    category: "body",
+    subcategory: "Cremas corporales",
+  },
+  {
+    id: "p14",
+    slug: "set-de-cremas-corporales-juicy-couture",
+    name: "Set de cremas corporales",
+    brand: "Juicy Couture",
+    category: "body",
+    subcategory: "Cremas corporales",
+  },
+  {
+    id: "s01",
+    slug: "aloe-vera-sabila-capsulas-blandas-sunshine-naturals",
+    name: "Aloe Vera Sábila, cápsulas blandas",
+    brand: "Sunshine Naturals",
+    category: "health",
+    subcategory: "Vitaminas y suplementos",
+  },
+  {
+    id: "s02",
+    slug: "gomitas-hair-skin-and-nails-natures-bounty",
+    name: "Gomitas Hair, Skin & Nails",
+    brand: "Nature’s Bounty",
+    category: "health",
+    subcategory: "Vitaminas y suplementos",
+  },
+  {
+    id: "s04",
+    slug: "multivitaminico-men-centrum",
+    name: "Multivitamínico Men",
+    brand: "Centrum",
+    category: "health",
+    subcategory: "Vitaminas y suplementos",
+  },
+  {
+    id: "s05",
+    slug: "gomitas-turmeric-and-ginger-got-gummys",
+    name: "Gomitas Turmeric & Ginger",
+    brand: "Got Gummys",
+    category: "health",
+    subcategory: "Vitaminas y suplementos",
+  },
+  {
+    id: "s06",
+    slug: "greens-en-polvo-jocko",
+    name: "Greens en polvo",
+    brand: "Jocko",
+    category: "health",
+    subcategory: "Vitaminas y suplementos",
+  },
+  {
+    id: "s08",
+    slug: "melatonina-10-mg-spring-valley",
+    name: "Melatonina 10 mg",
+    brand: "Spring Valley",
+    category: "health",
+    subcategory: "Vitaminas y suplementos",
+  },
+  {
+    id: "s09",
+    slug: "melatonina-kids-spring-valley",
+    name: "Melatonina Kids",
+    brand: "Spring Valley",
+    category: "health",
+    subcategory: "Vitaminas y suplementos",
+  },
+  {
+    id: "s10",
+    slug: "vitamina-d3-nature-made",
+    name: "Vitamina D3",
+    brand: "Nature Made",
+    category: "health",
+    subcategory: "Vitaminas y suplementos",
+  },
+  {
+    id: "s11",
+    slug: "allergy-relief-30-tabletas-topcare",
+    name: "Allergy Relief, 30 tabletas",
+    brand: "TopCare",
+    category: "health",
+    subcategory: "Venta libre",
+  },
+  {
+    id: "s12",
+    slug: "unguento-bacitracin-zinc-lucky",
+    name: "Ungüento Bacitracin Zinc",
+    brand: "Lucky",
+    category: "health",
+    subcategory: "Venta libre",
+  },
+  {
+    id: "s13",
+    slug: "dayquil-y-nyquil-combo-vicks",
+    name: "DayQuil y NyQuil, combo",
+    brand: "Vicks",
+    category: "health",
+    subcategory: "Venta libre",
+  },
+  {
+    id: "s14",
+    slug: "dayquil-y-nyquil-kids-combo-vicks",
+    name: "DayQuil y NyQuil Kids, combo",
+    brand: "Vicks",
+    category: "health",
+    subcategory: "Venta libre",
+  },
+  {
+    id: "s15",
+    slug: "inhalador-pack-x2-vicks",
+    name: "Inhalador, pack x2",
+    brand: "Vicks",
+    category: "health",
+    subcategory: "Venta libre",
+  },
+  {
+    id: "s16",
+    slug: "dual-action-con-tylenol-motrin",
+    name: "Dual Action con Tylenol",
+    brand: "Motrin",
+    category: "health",
+    subcategory: "Venta libre",
+  },
+  {
+    id: "s17",
+    slug: "tylenol-paracetamol-500-mg",
+    name: "Tylenol Paracetamol 500 mg, tabletas",
+    brand: "Tylenol",
+    category: "health",
+    subcategory: "Venta libre",
+    availabilityNote: "Presentación por confirmar: la foto muestra Paracetamol 500 mg en tabletas.",
+  },
+  {
+    id: "m2",
+    slug: "camiseta-a-rayas-cuello-redondo-polo-ralph-lauren",
+    name: "Camiseta a rayas cuello redondo",
+    brand: PRL,
+    category: "fashion",
+    subcategory: "Polo hombre",
+    variants: [sizes(["XS", "S", "M", "L", "XL"]), namedColor("Pebble Blue/White", 2)],
+    polo: hombre("Azul claro"),
+  },
+  {
+    id: "m3",
+    slug: "camisa-oxford-manga-corta-polo-ralph-lauren",
+    name: "Camisa Oxford manga corta",
+    brand: PRL,
+    category: "fashion",
+    subcategory: "Polo hombre",
+    variants: [sizes(ADULT, ["L"]), namedColor("White", 4)],
+    polo: hombre("Beige y gris"),
+  },
+  {
+    id: "m4",
+    slug: "camiseta-polo-ny-polo-ralph-lauren",
+    name: "Camiseta polo NY",
+    brand: PRL,
+    category: "fashion",
+    subcategory: "Polo hombre",
+    variants: [
+      sizes(["XXS", "XS", "S", "M", "L", "XL"], ["XXS", "XS"]),
+      namedColor("Moss Agate", 3),
+    ],
+    polo: hombre("Azul marino"),
+  },
+  {
+    id: "m5",
+    slug: "camiseta-polo-chevron-polo-ralph-lauren",
+    name: "Camiseta polo chevron",
+    brand: PRL,
+    category: "fashion",
+    subcategory: "Polo hombre",
+    variants: [sizes(ADULT), namedColor("White", 2)],
+    polo: hombre("Blanco y crema"),
+  },
+  {
+    id: "m6",
+    slug: "camiseta-polo-houndstooth-polo-ralph-lauren",
+    name: "Camiseta polo textura houndstooth",
+    brand: PRL,
+    category: "fashion",
+    subcategory: "Polo hombre",
+    variants: [sizes(ADULT), namedColor("Fairway Houndstooth Pine Heather", 2)],
+    polo: hombre("Verde"),
+  },
+  {
+    id: "m7",
+    slug: "camiseta-polo-a-rayas-polo-ralph-lauren",
+    name: "Camiseta polo a rayas",
+    brand: PRL,
+    category: "fashion",
+    subcategory: "Polo hombre",
+    variants: [sizes(ADULT), namedColor("Vintage Pine Multi", 2)],
+    polo: hombre("Verde"),
+  },
+  {
+    id: "m8",
+    slug: "camiseta-a-rayas-polo-ralph-lauren",
+    name: "Camiseta a rayas",
+    brand: PRL,
+    category: "fashion",
+    subcategory: "Polo hombre",
+    variants: [sizes(ADULT), namedColor("Newport Navy/White", 3)],
+    polo: hombre("Rayas y multicolor"),
+  },
+  {
+    id: "k1",
+    slug: "rugby-a-rayas-manga-larga-nino-polo-ralph-lauren",
+    name: "Rugby a rayas manga larga, niño",
+    brand: PRL,
+    category: "fashion",
+    subcategory: "Polo niños",
+    availabilityNote:
+      "Sin captura de tallas ni colores: cuéntanos la edad del niño y te confirmamos la talla.",
+    polo: ninos("Rayas y multicolor"),
+  },
+  {
+    id: "k2",
+    slug: "camiseta-polo-pique-nino-pequeno-polo-ralph-lauren",
+    name: "Camiseta polo piqué, niño pequeño",
+    brand: PRL,
+    category: "fashion",
+    subcategory: "Polo niños",
+    variants: [sizes(["2T", "3T", "4", "5", "6", "7"]), namedColor("White", 4)],
+    polo: ninos("Blanco y crema"),
+  },
+  {
+    id: "k3",
+    slug: "camiseta-polo-pique-juvenil-polo-ralph-lauren",
+    name: "Camiseta polo piqué, juvenil",
+    brand: PRL,
+    category: "fashion",
+    subcategory: "Polo niños",
+    variants: [sizes(JUNIOR), namedColor("Black", 30)],
+    polo: ninos("Negro"),
+  },
+  {
+    id: "k4",
+    slug: "chaleco-tejido-trenzado-juvenil-polo-ralph-lauren",
+    name: "Chaleco tejido trenzado, juvenil",
+    brand: PRL,
+    category: "fashion",
+    subcategory: "Polo niños",
+    variants: [sizes(JUNIOR), namedColor("RL Navy", 1)],
+    polo: ninos("Azul marino"),
+  },
+  {
+    id: "k5",
+    slug: "cardigan-tejido-trenzado-juvenil-polo-ralph-lauren",
+    name: "Cárdigan tejido trenzado, juvenil",
+    brand: PRL,
+    category: "fashion",
+    subcategory: "Polo niños",
+    variants: [sizes(JUNIOR), namedColor("Cruise Olive", 3)],
+    polo: ninos("Azul marino"),
+  },
+  {
+    id: "k6",
+    slug: "sueter-medio-cierre-juvenil-polo-ralph-lauren",
+    name: "Suéter medio cierre, juvenil",
+    brand: PRL,
+    category: "fashion",
+    subcategory: "Polo niños",
+    variants: [sizes(JUNIOR), namedColor("Andover Heather", 3)],
+    polo: ninos("Beige y gris"),
+  },
+  {
+    id: "k7",
+    slug: "chaqueta-tejida-con-capucha-juvenil-polo-ralph-lauren",
+    name: "Chaqueta tejida con capucha, juvenil",
+    brand: PRL,
+    category: "fashion",
+    subcategory: "Polo niños",
+    tag: "nuevo",
+    variants: [sizes(JUNIOR), namedColor("Cream", 3)],
+    polo: ninos("Blanco y crema"),
+  },
+  {
+    id: "k8",
+    slug: "sueter-tejido-trenzado-juvenil-polo-ralph-lauren",
+    name: "Suéter tejido trenzado, juvenil",
+    brand: PRL,
+    category: "fashion",
+    subcategory: "Polo niños",
+    variants: [sizes(JUNIOR), namedColor("Dusty Azure", 9)],
+    polo: ninos("Verde"),
+  },
+  {
+    id: "v2",
+    slug: "pack-x5-panties-sin-costuras-victorias-secret",
+    name: "Pack x5 panties sin costuras",
+    brand: VS,
+    category: "fashion",
+    subcategory: "Ropa interior",
+    price: 155_000,
+    variants: [VS_SIZES, designs(4)],
+  },
+  {
+    id: "v3",
+    slug: "pack-x5-panties-de-encaje-victorias-secret",
+    name: "Pack x5 panties de encaje",
+    brand: VS,
+    category: "fashion",
+    subcategory: "Ropa interior",
+    price: 155_000,
+    variants: [VS_SIZES, designs(6)],
+  },
+  {
+    id: "h01",
+    slug: "lavaplatos-liquido-ultra-strength-palmolive",
+    name: "Lavaplatos líquido Ultra Strength",
+    brand: "Palmolive",
+    category: "home",
+    subcategory: "Cocina",
+  },
+  {
+    id: "d01",
+    slug: "bebida-postbiotica-tropical-wave-arih",
+    name: "Bebida postbiótica Tropical Wave",
+    brand: "ARIH",
+    category: "snack",
+    subcategory: "Bebidas",
+  },
+  {
+    id: "d02",
+    slug: "fideos-instantaneos-modern-noodle-arih",
+    name: "Fideos instantáneos Modern Noodle",
+    brand: "ARIH",
+    category: "snack",
+    subcategory: "Snacks",
+  },
+];
+
+const imagesBySlug = generatedImages as Record<string, { src: string; variant?: string }[]>;
+
+function imagesFor(seed: Seed): ProductImage[] {
+  const brand = seed.brand === UNKNOWN_BRAND ? "" : ` ${seed.brand}`;
+  return (imagesBySlug[seed.slug] ?? []).map((image, index) => ({
+    src: image.src,
+    alt: image.variant
+      ? `${seed.name}${brand}, ${image.variant}`
+      : `${seed.name}${brand}${index > 0 ? `, foto ${index + 1}` : ""}`,
+    ...(image.variant ? { variant: image.variant } : {}),
+  }));
+}
+
+export const products: Product[] = seeds.map((seed, index) => ({
+  id: seed.id,
+  slug: seed.slug,
+  name: seed.name,
+  brand: seed.brand,
+  category: seed.category,
+  subcategory: seed.subcategory,
+  priceFromCop: seed.price ?? null,
+  ...(seed.tag ? { tag: seed.tag } : {}),
+  availability: "confirmar",
+  ...(seed.availabilityNote ? { availabilityNote: seed.availabilityNote } : {}),
+  variants: seed.variants ?? [],
+  images: imagesFor(seed),
+  ...(seed.description ? { description: seed.description } : {}),
+  ...(seed.polo ? { polo: seed.polo } : {}),
+  rank: index,
+}));
