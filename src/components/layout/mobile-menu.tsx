@@ -60,7 +60,7 @@ export function MobileMenu() {
         id={panelId}
         hidden={!open}
         aria-label="Menú móvil"
-        className="absolute inset-x-0 top-full max-h-[calc(100dvh-100px)] overflow-auto border-b border-gold bg-navy px-5 pt-2 pb-6 text-ivory nav:hidden"
+        className="absolute inset-x-0 top-full max-h-[calc(100dvh-172px)] overflow-auto border-b border-gold bg-navy px-5 pt-2 pb-6 text-ivory md:max-h-[calc(100dvh-215px)] nav:hidden"
       >
         {[...mainNav, { key: "pedido", label: `Mi pedido (${count})`, href: "/mi-pedido" }].map(
           (item) => (

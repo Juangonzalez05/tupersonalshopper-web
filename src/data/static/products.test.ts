@@ -52,7 +52,7 @@ describe("catálogo estático", () => {
     const referenced = [
       ...curation.home.newArrivals,
       ...curation.home.trending,
-      ...curation.home.marquee.map((m) => m.id),
+      ...curation.marquee.map((m) => m.id),
       ...curation.home.collage.small,
       ...Object.values(curation.trends).flatMap((v) => (Array.isArray(v) ? v : [])),
       ...editorial.lookbook.map((l) => l.productId),

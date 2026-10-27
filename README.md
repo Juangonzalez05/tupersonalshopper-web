@@ -35,7 +35,7 @@ src/
   data/         Acceso al catálogo detrás de la interfaz CatalogRepository.
     static/     Implementación actual: productos, categorías y selecciones editoriales.
     index.ts    Repositorio activo (para pasar a Supabase o un CMS se cambia solo aquí).
-  features/     Funcionalidades: cart (pedido), catalog, product, polo, home, quote, custom-order.
+  features/     Funcionalidades: cart (pedido), catalog, product, polo, home, marquee (cinta superior), quote, custom-order.
   components/   UI reutilizable (ui/), layout (header, footer, pasos…), iconos y SEO.
   config/       Datos de marca y contacto (site.ts) y variables validadas (env.ts).
 scripts/        Preparación de fotos (process-photos.ts + photos.manifest.ts).
@@ -52,11 +52,11 @@ Reglas:
 ## Catálogo y fotos
 
 - Los productos están en `src/data/static/products.ts` (el orden del arreglo es el orden "Recomendados").
-- Las etiquetas Nuevo/Tendencia y los rankings están en `src/data/static/curation.ts`.
+- Las etiquetas Nuevo/Tendencia, los rankings y la cinta superior (`curation.marquee`) están en `src/data/static/curation.ts`.
 - Las fotos originales van en `photos/` (no se suben al repositorio). `scripts/photos.manifest.ts` dice qué foto usa cada producto; `npm run photos` genera las versiones 4:5 en `public/img` y el archivo `product-images.generated.json`.
 
 Para **agregar un producto**: súmalo en `products.ts`, agrega sus fotos al manifiesto, corre `npm run photos` y `npm run check`.
 
 ## Pendientes de contenido
 
-Lo que debe confirmar Tu Shopper USA (WhatsApp, Instagram, horario, envíos, pagos, colores, marcas…) está en [docs/PENDIENTES.md](docs/PENDIENTES.md). En el sitio aparece como "[… por confirmar]".
+Lo que debe confirmar Tu Shopper USA (horario, envíos, pagos, colores, marcas…) está en [docs/PENDIENTES.md](docs/PENDIENTES.md). En el sitio aparece como "[… por confirmar]".

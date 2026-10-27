@@ -4,8 +4,8 @@ En el sitio aparecen como "[… por confirmar]". Al confirmarlos, cámbialos don
 
 ## Contacto e identidad → variables de entorno y `src/config/site.ts`
 
-- [ ] Número de WhatsApp de atención → `NEXT_PUBLIC_WHATSAPP_NUMBER` (solo dígitos, con 57). Mientras falte, WhatsApp se abre con el mensaje y deja elegir el contacto.
-- [ ] Usuario de Instagram → `NEXT_PUBLIC_INSTAGRAM_USER`.
+- [x] Número de WhatsApp de atención: +57 323 910 5182 (valor por defecto en `src/config/env.ts`; se puede cambiar con `NEXT_PUBLIC_WHATSAPP_NUMBER`).
+- [x] Usuario de Instagram: @tushopperusa.co (valor por defecto en `src/config/env.ts`; se puede cambiar con `NEXT_PUBLIC_INSTAGRAM_USER`).
 - [ ] Horario de atención → `site.schedule`.
 - [x] Logo circular: ya está en el sitio (header, footer, favicon, íconos e imagen para compartir).
 

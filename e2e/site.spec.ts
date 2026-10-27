@@ -15,16 +15,50 @@ async function stubWindowOpen(page: Page) {
 const openedUrls = (page: Page) =>
   page.evaluate(() => (window as unknown as { __opened: string[] }).__opened);
 
-test("inicio: hero, categorías y marquesina que se pausa", async ({ page, isMobile }) => {
+test("inicio: hero y categorías", async ({ page }) => {
   await page.goto("/");
   await expect(page.getByRole("heading", { level: 1 })).toContainText(
     "Lo que te gusta de Estados Unidos",
   );
   await expect(page.getByRole("link", { name: /Cuidado facial\s*4 productos/ })).toBeVisible();
+});
+
+const ribbonOf = (page: Page) => page.getByRole("region", { name: "Novedades y tendencias" });
+
+test("marquesina: va arriba de todo, antes del menú, en todas las páginas", async ({
+  page,
+  isMobile,
+}) => {
+  for (const path of ["/", "/catalogo"]) {
+    await page.goto(path);
+    const ribbon = ribbonOf(page);
+    await expect(ribbon).toBeVisible();
+    const [ribbonBox, headerBox] = await Promise.all([
+      ribbon.boundingBox(),
+      page.getByRole("banner").boundingBox(),
+    ]);
+    expect(ribbonBox!.y).toBe(0);
+    expect(ribbonBox!.height).toBeGreaterThan(isMobile ? 64 : 80);
+    expect(ribbonBox!.y + ribbonBox!.height).toBeLessThanOrEqual(headerBox!.y);
+  }
+});
+
+test("marquesina: se pausa con el cursor", async ({ page, isMobile }) => {
   test.skip(isMobile, "El hover solo aplica con cursor");
-  const marquee = page.locator('section[aria-label^="Novedades"]');
-  await marquee.hover({ position: { x: 20, y: 20 }, force: true });
-  await expect(marquee.locator("ul")).toHaveCSS("animation-play-state", "paused");
+  await page.goto("/");
+  const ribbon = ribbonOf(page);
+  await ribbon.hover({ position: { x: 20, y: 20 }, force: true });
+  await expect(ribbon.locator("ul")).toHaveCSS("animation-play-state", "paused");
+});
+
+test("marquesina: se va con el scroll y el menú queda fijo", async ({ page }) => {
+  await page.goto("/");
+  await page.evaluate(() => window.scrollTo(0, 900));
+  const ribbonBox = await ribbonOf(page).boundingBox();
+  expect(ribbonBox!.y + ribbonBox!.height).toBeLessThan(0);
+  const header = page.getByRole("banner");
+  await expect(header).toBeInViewport();
+  expect((await header.boundingBox())!.y).toBeLessThan(60);
 });
 
 test("catálogo: categoría + marca filtra y queda en la URL", async ({ page, isMobile }) => {
@@ -87,7 +121,7 @@ test("mi pedido: valida y abre WhatsApp con la lista", async ({ page }) => {
 
   await expect(page).toHaveURL(/\/mi-pedido\/enviado/);
   const [url] = await openedUrls(page);
-  expect(url).toMatch(/^https:\/\/wa\.me\/\d*\?text=/);
+  expect(url).toMatch(/^https:\/\/wa\.me\/573239105182\?text=/);
   const text = decodeURIComponent(url!.split("text=")[1]!);
   expect(text).toContain("Gorra Polo clásica (Polo Ralph Lauren)");
   expect(text).toContain("Color: Polo Black");
@@ -124,6 +158,27 @@ test("móvil: el menú abre y cierra con Escape", async ({ page, isMobile }) => 
     () => document.documentElement.scrollWidth > window.innerWidth,
   );
   expect(overflow).toBe(false);
+});
+
+test("móvil: la barra de anuncio queda en una sola línea", async ({ page, isMobile }) => {
+  test.skip(!isMobile, "Solo en móvil");
+  await page.goto("/");
+  const announcement = page.locator("p", { hasText: "Cotiza sin compromiso por WhatsApp" }).first();
+  await expect(announcement).toBeVisible();
+  expect((await announcement.boundingBox())!.height).toBeLessThan(40);
+});
+
+test("contacto: el footer apunta al WhatsApp e Instagram oficiales", async ({ page }) => {
+  await page.goto("/");
+  const footer = page.getByRole("contentinfo");
+  await expect(footer.getByRole("link", { name: "WhatsApp +57 323 910 5182" })).toHaveAttribute(
+    "href",
+    "https://wa.me/573239105182",
+  );
+  await expect(footer.getByRole("link", { name: "Instagram @tushopperusa.co" })).toHaveAttribute(
+    "href",
+    "https://instagram.com/tushopperusa.co",
+  );
 });
 
 test("producto inexistente muestra la página 404 sin indexar", async ({ page }) => {

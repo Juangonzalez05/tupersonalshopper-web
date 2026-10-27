@@ -11,6 +11,12 @@ export function whatsappUrl(phone: string | undefined, text?: string): string {
   return text ? `${base}?text=${encodeURIComponent(text)}` : base;
 }
 
+/** "573239105182" → "+57 323 910 5182" (celular colombiano); otros números, "+<dígitos>". */
+export function formatPhoneLabel(phone: string): string {
+  const match = /^57(\d{3})(\d{3})(\d{4})$/.exec(phone);
+  return match ? `+57 ${match[1]} ${match[2]} ${match[3]}` : `+${phone}`;
+}
+
 function customerBlock(customer: Omit<CustomerData, "consent">): string[] {
   return [
     "*Mis datos*",

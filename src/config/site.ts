@@ -1,3 +1,4 @@
+import { formatPhoneLabel } from "@/domain/whatsapp";
 import { env } from "./env";
 
 /**
@@ -13,16 +14,10 @@ export const site = {
   locale: "es_CO",
   country: "CO",
   whatsappNumber: env.NEXT_PUBLIC_WHATSAPP_NUMBER,
-  whatsappLabel: env.NEXT_PUBLIC_WHATSAPP_NUMBER
-    ? `+${env.NEXT_PUBLIC_WHATSAPP_NUMBER}`
-    : "[número por confirmar]",
+  whatsappLabel: formatPhoneLabel(env.NEXT_PUBLIC_WHATSAPP_NUMBER),
   instagramUser: env.NEXT_PUBLIC_INSTAGRAM_USER,
-  instagramUrl: env.NEXT_PUBLIC_INSTAGRAM_USER
-    ? `https://instagram.com/${env.NEXT_PUBLIC_INSTAGRAM_USER}`
-    : "https://instagram.com/",
-  instagramLabel: env.NEXT_PUBLIC_INSTAGRAM_USER
-    ? `@${env.NEXT_PUBLIC_INSTAGRAM_USER}`
-    : "[@usuario por confirmar]",
+  instagramUrl: `https://instagram.com/${env.NEXT_PUBLIC_INSTAGRAM_USER}`,
+  instagramLabel: `@${env.NEXT_PUBLIC_INSTAGRAM_USER}`,
   schedule: "[horario por confirmar]",
   copyrightYear: 2026,
   announcement: {

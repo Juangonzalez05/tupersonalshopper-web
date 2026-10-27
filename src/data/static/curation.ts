@@ -1,23 +1,39 @@
+import type { ProductTag } from "@/domain/product";
+
 /**
  * Selecciones editoriales por id de producto. Las etiquetas "Nuevo"/"Tendencia" y los rankings
  * son una asignación de ejemplo del diseño: se cambian aquí sin tocar las páginas.
  */
+export interface MarqueeEntry {
+  /** Id del producto al que lleva el ítem. */
+  id: string;
+  tag: ProductTag;
+  /**
+   * Nombre corto para la cinta. La marca va en su propia fila, así que no se repite aquí;
+   * si falta, se usa el nombre del producto.
+   */
+  title?: string;
+}
+
+/** Cinta superior del sitio: se ve en todas las páginas, arriba del encabezado. */
+const marquee: readonly MarqueeEntry[] = [
+  { id: "g1", tag: "nuevo" },
+  { id: "f04", tag: "tendencia" },
+  { id: "m9", tag: "nuevo" },
+  { id: "p01", tag: "tendencia", title: "Crema Vanilla Cashmere" },
+  { id: "p05", tag: "nuevo" },
+  { id: "v1", tag: "tendencia", title: "Pack x5 panties" },
+  { id: "f01", tag: "nuevo", title: "Contorno de ojos cúrcuma" },
+  { id: "b03", tag: "tendencia" },
+  { id: "k7", tag: "nuevo", title: "Chaqueta tejida niño" },
+  { id: "s07", tag: "tendencia" },
+];
+
 export const curation = {
+  marquee,
   home: {
     newArrivals: ["g1", "f01", "p05", "m9"],
     trending: ["f04", "b01", "v1", "p01"],
-    marquee: [
-      { id: "g1", label: "Nuevo" },
-      { id: "f04", label: "Tendencia", title: "Sérum Medicube PDRN" },
-      { id: "m9", label: "Nuevo" },
-      { id: "p01", label: "Tendencia", title: "Crema eos Vanilla Cashmere" },
-      { id: "p05", label: "Nuevo", title: "Vaseline Sunlit Glow" },
-      { id: "v1", label: "Tendencia", title: "Pack Victoria's Secret" },
-      { id: "f01", label: "Nuevo", title: "Contorno Medicube cúrcuma" },
-      { id: "b03", label: "Tendencia", title: "Gloss Juliette & Co." },
-      { id: "k7", label: "Nuevo", title: "Chaqueta tejida niño" },
-      { id: "s07", label: "Tendencia", title: "Kit Olly Rise & Rest" },
-    ],
     collage: { small: ["f04", "p01"] },
   },
   trends: {

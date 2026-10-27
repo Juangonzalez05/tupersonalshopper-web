@@ -14,9 +14,8 @@ La carpeta `photos/` (originales, ~55 MB) no se sube: está en `.gitignore`. Las
 ## 2. Crear el proyecto en Vercel
 
 1. En vercel.com → **Add New… → Project** → importa el repositorio. Vercel detecta Next.js solo; no cambies los comandos.
-2. **Settings → Environment Variables** (Production y Preview):
-   - `NEXT_PUBLIC_WHATSAPP_NUMBER` = número con indicativo, solo dígitos (p. ej. `573001234567`)
-   - `NEXT_PUBLIC_INSTAGRAM_USER` = usuario sin `@`
+2. **Settings → Environment Variables** (Production y Preview). Todas son opcionales:
+   - `NEXT_PUBLIC_WHATSAPP_NUMBER` y `NEXT_PUBLIC_INSTAGRAM_USER`: el sitio ya trae `+57 323 910 5182` y `@tushopperusa.co`; defínelas solo para cambiarlos (número con indicativo y solo dígitos; usuario sin `@`).
    - `NEXT_PUBLIC_SITE_URL` = déjalo vacío hasta tener dominio (se usa el dominio `*.vercel.app` automáticamente)
 3. **Deploy**. Cada push a `main` publica en producción; cada rama o PR genera una vista previa (que no se indexa en Google).
 

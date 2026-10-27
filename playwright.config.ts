@@ -10,6 +10,9 @@ const PORT = 3100;
 export default defineConfig({
   testDir: "./e2e",
   fullyParallel: true,
+  // Cada página trae la cinta animada arriba: con 4 navegadores a la vez la máquina se satura y
+  // las pruebas vencen el tiempo. Con 2 son estables y más rápidas.
+  workers: 2,
   retries: process.env.CI ? 1 : 0,
   expect: { timeout: 10_000 },
   reporter: process.env.CI ? "github" : "list",

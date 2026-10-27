@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { addLine, type NewCartLine } from "./cart";
 import { customerSchema, customOrderSchema, fieldErrors } from "./schemas";
-import { customOrderMessage, quoteMessage, whatsappUrl } from "./whatsapp";
+import { customOrderMessage, formatPhoneLabel, quoteMessage, whatsappUrl } from "./whatsapp";
 
 const line: NewCartLine = {
   productId: "g1",
@@ -21,6 +21,16 @@ const customer = {
   whatsapp: "+57 300 000 0000",
   comments: "",
 };
+
+describe("formatPhoneLabel", () => {
+  it("agrupa los celulares colombianos", () => {
+    expect(formatPhoneLabel("573239105182")).toBe("+57 323 910 5182");
+  });
+
+  it("deja otros números con el indicativo y sin formato", () => {
+    expect(formatPhoneLabel("14155550123")).toBe("+14155550123");
+  });
+});
 
 describe("whatsappUrl", () => {
   it("codifica el texto y usa el número configurado", () => {

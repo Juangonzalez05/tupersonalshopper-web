@@ -1,5 +1,5 @@
 import { catalog, curation, editorial } from "@/data";
-import { categoryPath, productPath } from "@/domain/product";
+import { categoryPath } from "@/domain/product";
 import { Steps, howItWorksSteps } from "@/components/layout/steps";
 import { SectionHead, SectionLink } from "@/components/ui/typography";
 import { ProductGrid } from "@/features/catalog/product-grid";
@@ -7,7 +7,6 @@ import { CategoryGrid, type CategoryTile } from "@/features/home/category-grid";
 import { Collections } from "@/features/home/collections";
 import { CtaBand } from "@/features/home/cta-band";
 import { Hero } from "@/features/home/hero";
-import { Marquee } from "@/features/home/marquee";
 import { TrustBar } from "@/features/home/trust-bar";
 
 const plural = (n: number, one: string, many: string) => `${n} ${n === 1 ? one : many}`;
@@ -29,16 +28,6 @@ export default async function HomePage() {
   ];
   const newArrivals = curation.home.newArrivals.map(byId);
   const trending = curation.home.trending.map(byId);
-
-  const marquee = curation.home.marquee.map((item) => {
-    const product = byId(item.id);
-    return {
-      label: item.label,
-      title: "title" in item ? item.title : product.name,
-      href: productPath(product),
-      image: product.images[0]?.src ?? "",
-    };
-  });
 
   const count = (key: string) => products.filter((p) => p.category === key).length;
   const poloCount = products.filter((p) => p.polo).length;
@@ -62,11 +51,6 @@ export default async function HomePage() {
   return (
     <>
       <Hero main={editorial.heroMain} face={face} body={body} />
-
-      <Marquee
-        items={marquee}
-        ariaLabel="Novedades y tendencias. Pasa el cursor o enfoca para pausar."
-      />
 
       <section className="wrap sec-sm" aria-labelledby="cat-t">
         <SectionHead

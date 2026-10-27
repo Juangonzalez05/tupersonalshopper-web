@@ -6,4 +6,4 @@ import { staticCatalog } from "./static/static-catalog";
 export const catalog: CatalogRepository = staticCatalog;
 
 export { curation, editorial } from "./static/curation";
-export type { EditorialImage } from "./static/curation";
+export type { EditorialImage, MarqueeEntry } from "./static/curation";

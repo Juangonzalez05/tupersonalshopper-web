@@ -11,6 +11,7 @@ const tagVariants = cva(
         nuevo: "bg-navy text-ivory",
         tendencia: "border border-gold bg-ivory text-gold-ink",
         gold: "bg-gold text-navy",
+        goldLine: "border border-gold text-gold",
         line: "border border-line-2 text-muted",
       },
     },
